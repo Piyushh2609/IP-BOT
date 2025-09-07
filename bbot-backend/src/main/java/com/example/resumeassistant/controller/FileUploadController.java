@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.nio.file.*;
 
 @CrossOrigin(origins = {
-        "http://localhost:5173", // local development
-        "https://ip-bot-zcxi.onrender.com" // deployed frontend on Render
+        "http://localhost:5173",
+        "https://ip-bot-zcxi.onrender.com", // frontend
+        "https://ip-bot-escy.onrender.com" // backend (self, sometimes needed for proxy)
 })
+
 @RestController
 @RequestMapping("/api")
 public class FileUploadController {

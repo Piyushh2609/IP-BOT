@@ -59,7 +59,7 @@ public class ResumePage {
             }
 
             cachedResumeText = resumeText;
-            cachedResumeUrl = "http://localhost:8080/uploads/" + originalFilename;
+            cachedResumeUrl = "https://ip-bot-escy.onrender.com/uploads/" + originalFilename;
 
             cachedQuestions = ai2iService.generateQuestions(resumeText, count);
 

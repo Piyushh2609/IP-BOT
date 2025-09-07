@@ -15,9 +15,11 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = {
-        "http://localhost:5173", // local development
-        "https://ip-bot-zcxi.onrender.com" // deployed frontend on Render
+        "http://localhost:5173",
+        "https://ip-bot-zcxi.onrender.com", // frontend
+        "https://ip-bot-escy.onrender.com" // backend (self, sometimes needed for proxy)
 })
+
 public class FeedbackController {
 
     @Autowired
