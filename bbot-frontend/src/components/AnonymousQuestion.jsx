@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import "./AnonymousPage.css";
 
-const backendUrl = "http://localhost:8080";
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+
 
 // Shared behavioral questions
 const behavioralQuestions = [

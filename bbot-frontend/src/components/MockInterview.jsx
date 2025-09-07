@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 export default function MockInterview({ resumeText, questions }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
@@ -11,7 +11,7 @@ export default function MockInterview({ resumeText, questions }) {
     const question = questions[currentIndex];
 
     try {
-      const res = await axios.post("http://localhost:8080/api/interview/feedback", {
+      const res = await axios.post(`${backendUrl}/api/interview/feedback`, {
         resume: resumeText,
         question,
         answer,

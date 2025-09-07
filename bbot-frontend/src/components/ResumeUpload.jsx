@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 export default function ResumeQnA() {
   const [file, setFile] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -26,7 +26,7 @@ export default function ResumeQnA() {
       formData.append("count", count);
 
       const res = await axios.post(
-        "http://localhost:8080/api/upload-and-generate",
+        `${backendUrl}/api/upload-and-generate`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
