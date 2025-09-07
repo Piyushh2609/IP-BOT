@@ -13,6 +13,9 @@ function ResumePage() {
   const [currentAnswer, setCurrentAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [history, setHistory] = useState([]);
+
+  let recognition;
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -22,6 +25,7 @@ function ResumePage() {
     setCurrentIndex(0);
     setCurrentAnswer("");
     setFeedback("");
+    setHistory([]);
   };
 
   const uploadResume = async () => {
@@ -30,10 +34,12 @@ function ResumePage() {
     formData.append("file", file);
 
     try {
-      const res = await axios.post(`${backendUrl}/api/upload-and-generate`, formData, {
+      // ✅ Match backend endpoint
+      const res = await axios.post(`${backendUrl}/api/upload-a`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      // Expecting backend to return: { status, fileName, resumeUrl, questions }
       if (res.data.questions && res.data.questions.length > 0) {
         setQuestions(res.data.questions);
         setResumeUrl(res.data.resumeUrl || "");
@@ -54,42 +60,73 @@ function ResumePage() {
       const res = await axios.post(`${backendUrl}/api/feedback`, {
         question: questions[currentIndex],
         answer: currentAnswer,
+        resume: resumeUrl,
       });
-      setFeedback(res.data.feedback || "No feedback available.");
+
+      const result = {
+        question: questions[currentIndex],
+        answer: currentAnswer,
+        feedback: res.data.feedback || "No feedback available.",
+      };
+
+      setHistory((prev) => [...prev, result]);
+      setFeedback(result.feedback);
+
+      // Auto-advance after showing feedback
+      setTimeout(() => {
+        setFeedback("");
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex((prev) => prev + 1);
+        }
+        setCurrentAnswer("");
+      }, 3000);
     } catch (err) {
       console.error(err);
       setFeedback("Failed to get feedback.");
     }
   };
 
-  const handleNextQuestion = () => {
-    setCurrentIndex(currentIndex + 1);
-    setCurrentAnswer("");
-    setFeedback("");
-  };
-
   const startRecording = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Speech recognition not supported.");
+      alert("Speech recognition not supported in this browser.");
       return;
     }
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition = new SpeechRecognition();
     recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setCurrentAnswer((prev) => prev + " " + transcript);
+    };
+    recognition.onend = () => setIsRecording(false);
+    recognition.onerror = () => setIsRecording(false);
 
     recognition.start();
     setIsRecording(true);
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setCurrentAnswer((prev) => prev + " " + transcript);
-    };
-
-    recognition.onend = () => setIsRecording(false);
-    recognition.onerror = () => setIsRecording(false);
   };
+
+  // 🎉 Show summary when finished
+  if (currentIndex >= questions.length && questions.length > 0) {
+    return (
+      <div className="resume-page">
+        <h1>✅ Interview Completed</h1>
+        <p>Here’s your full feedback session:</p>
+
+        <div className="qa-container">
+          {history.map((item, idx) => (
+            <div key={idx} className="qa-summary">
+              <p><strong>Q{idx + 1}:</strong> {item.question}</p>
+              <p className="answer"><strong>Your Answer:</strong> {item.answer}</p>
+              <p className="feedback"><strong>AI Feedback:</strong> {item.feedback}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="resume-page">
@@ -116,37 +153,28 @@ function ResumePage() {
 
           {/* RIGHT: Q&A Section */}
           <div className="qa-section">
-            {currentIndex < questions.length ? (
-              <>
-                <h2>
-                  Question {currentIndex + 1} 
-                </h2>
-                <p>{questions[currentIndex]}</p>
+            <h2>
+              Question {currentIndex + 1} of {questions.length}
+            </h2>
+            <p>{questions[currentIndex]}</p>
 
-                <textarea
-                  rows="3"
-                  value={currentAnswer}
-                  onChange={(e) => setCurrentAnswer(e.target.value)}
-                />
+            <textarea
+              rows="3"
+              value={currentAnswer}
+              onChange={(e) => setCurrentAnswer(e.target.value)}
+            />
 
-                <div className="qa-buttons">
-                  <button onClick={handleAnswerSubmit}>Submit Answer</button>
-                  {currentIndex < questions.length - 1 && (
-                    <button onClick={handleNextQuestion}>Next Question</button>
-                  )}
-                  <button
-                    onClick={startRecording}
-                    className={isRecording ? "recording" : ""}
-                  >
-                    {isRecording ? "Listening..." : "🎤 Speak Answer"}
-                  </button>
-                </div>
+            <div className="qa-buttons">
+              <button onClick={handleAnswerSubmit}>Submit Answer</button>
+              <button
+                onClick={startRecording}
+                className={isRecording ? "recording" : ""}
+              >
+                {isRecording ? "Listening..." : "🎤 Speak Answer"}
+              </button>
+            </div>
 
-                {feedback && <div className="feedback">{feedback}</div>}
-              </>
-            ) : (
-              <p className="completed-message">🎉 You have completed all questions!</p>
-            )}
+            {feedback && <div className="feedback">{feedback}</div>}
           </div>
         </div>
       )}

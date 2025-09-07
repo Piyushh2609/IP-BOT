@@ -11,7 +11,7 @@ export default function MockInterview({ resumeText, questions }) {
     const question = questions[currentIndex];
 
     try {
-      const res = await axios.post(`${backendUrl}/api/interview/feedback`, {
+      const res = await axios.post(`${backendUrl}/api/feedback`, {
         resume: resumeText,
         question,
         answer,
