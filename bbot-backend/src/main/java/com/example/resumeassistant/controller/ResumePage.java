@@ -15,9 +15,11 @@ import java.io.*;
 import java.util.*;
 
 @CrossOrigin(origins = {
-        "http://localhost:5173", // local development
-        "https://ip-bot-zcxi.onrender.com" // deployed frontend on Render
-}) // Allow React frontend
+        "http://localhost:5173",
+        "https://ip-bot-zcxi.onrender.com", // frontend
+        "https://ip-bot-escy.onrender.com" // backend (self, sometimes needed for proxy)
+})
+// Allow React frontend
 @RestController
 @RequestMapping("/api")
 public class ResumePage {
