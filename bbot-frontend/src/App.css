@@ -1,0 +1,27 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.landing-page {
+  text-align: center;
+  padding: 50px;
+}
+
+.landing-page h1 {
+  font-size: 3rem;
+  margin-bottom: 40px;
+}
+
+.sections button {
+  margin: 20px;
+  padding: 20px 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.page {
+  padding: 40px;
+  text-align: center;
+}
